@@ -24,3 +24,30 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* The UI is a light theme (white cards, gray-50 pages), but on devices with
+   OS dark mode the browser renders form controls with light text, making
+   typed values look washed-out grey on the white fields. Pin all form
+   controls to the light palette so input text is always dark and readable. */
+input,
+select,
+textarea {
+  background-color: #ffffff;
+  color: #111827;
+  color-scheme: light;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+/* Keep browser autofill readable instead of grey/yellow-on-white. */
+input:-webkit-autofill,
+select:-webkit-autofill,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: #111827;
+  caret-color: #111827;
+  transition: background-color 9999s ease-in-out 0s;
+}
