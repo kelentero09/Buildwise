@@ -6,6 +6,7 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import { BudgetForm } from './BudgetForm';
 import { ExpensesList } from './ExpensesList';
 import { PaymentsList } from './PaymentsList';
+import { StatusBadge, StatCard, ProgressBar } from '@/components/ui';
 
 interface Project {
   id: string;
@@ -41,13 +42,6 @@ interface ProjectDetailProps {
   remainingBalance: number;
 }
 
-const statusColors: Record<string, string> = {
-  Planning: 'bg-yellow-100 text-yellow-800',
-  Active: 'bg-blue-100 text-blue-800',
-  Completed: 'bg-green-100 text-green-800',
-  Cancelled: 'bg-gray-100 text-gray-800',
-};
-
 export function ProjectDetail({
   project,
   budget,
@@ -61,7 +55,7 @@ export function ProjectDetail({
   const [activeTab, setActiveTab] = useState<'overview' | 'budget' | 'expenses' | 'payments'>('overview');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-enter">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link
@@ -78,61 +72,49 @@ export function ProjectDetail({
             <p className="text-gray-600 text-sm">{project.client_name}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[project.status] || 'bg-gray-100 text-gray-800'}`}>
-            {project.status}
-          </span>
+        <div className="flex items-center gap-2">
+          <StatusBadge status={project.status} />
           <Link
             href={`/dashboard/projects/${project.id}/edit`}
-            className="text-sm text-blue-600 hover:text-blue-500"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center px-2 text-sm font-medium text-blue-600 hover:text-blue-500"
           >
             Edit
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          label="Contract Amount"
-          value={formatCurrency(project.contract_amount)}
-          variant="primary"
-        />
-        <MetricCard
-          label="Est. Total Cost"
-          value={formatCurrency(profitability.estimated_total_cost)}
-        />
-        <MetricCard
-          label="Actual Cost"
-          value={formatCurrency(actualTotal)}
-        />
-        <MetricCard
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard label="Contract Amount" value={formatCurrency(project.contract_amount)} />
+        <StatCard label="Est. Total Cost" value={formatCurrency(profitability.estimated_total_cost)} />
+        <StatCard label="Actual Cost" value={formatCurrency(actualTotal)} />
+        <StatCard
           label="Est. Profit"
           value={formatCurrency(profitability.estimated_profit)}
-          variant={profitability.estimated_profit < 0 ? 'negative' : 'positive'}
+          valueTone={profitability.estimated_profit < 0 ? 'negative' : 'positive'}
         />
-        <MetricCard
+        <StatCard
           label="Actual Profit"
           value={formatCurrency(actualProfit)}
-          variant={actualProfit < 0 ? 'negative' : 'positive'}
+          valueTone={actualProfit < 0 ? 'negative' : 'positive'}
         />
-        <MetricCard
+        <StatCard
           label="Est. Margin"
           value={`${profitability.estimated_margin.toFixed(1)}%`}
-          variant={profitability.estimated_margin < 0 ? 'negative' : profitability.estimated_margin < 10 ? 'warning' : 'positive'}
+          valueTone={profitability.estimated_margin < 0 ? 'negative' : profitability.estimated_margin < 10 ? 'warning' : 'positive'}
         />
-        <MetricCard
+        <StatCard
           label="Actual Margin"
           value={`${actualMargin.toFixed(1)}%`}
-          variant={actualMargin < 0 ? 'negative' : actualMargin < 10 ? 'warning' : 'positive'}
+          valueTone={actualMargin < 0 ? 'negative' : actualMargin < 10 ? 'warning' : 'positive'}
         />
-        <MetricCard
+        <StatCard
           label="Total Received"
           value={formatCurrency(totalReceived)}
         />
-        <MetricCard
+        <StatCard
           label="Remaining Balance"
           value={formatCurrency(remainingBalance)}
-          variant={remainingBalance > 0 ? 'warning' : 'primary'}
+          valueTone={remainingBalance > 0 ? 'warning' : 'default'}
         />
       </div>
 
@@ -143,114 +125,110 @@ export function ProjectDetail({
       )}
 
       <div className="border-b border-gray-200">
-        <nav className="flex gap-4 overflow-x-auto" aria-label="Project tabs">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'overview'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab('budget')}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'budget'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Budget
-          </button>
-          <button
-            onClick={() => setActiveTab('expenses')}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'expenses'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Expenses
-          </button>
-          <button
-            onClick={() => setActiveTab('payments')}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'payments'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Payments
-          </button>
+        <nav className="flex gap-2 overflow-x-auto" aria-label="Project tabs" role="tablist">
+          {(
+            [
+              { key: 'overview', label: 'Overview' },
+              { key: 'budget', label: 'Budget' },
+              { key: 'expenses', label: 'Expenses' },
+              { key: 'payments', label: 'Payments' },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.key}
+              role="tab"
+              aria-selected={activeTab === tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-4 min-h-[44px] text-sm font-medium whitespace-nowrap transition-colors ${
+                activeTab === tab.key
+                  ? 'border-b-2 border-blue-600 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </nav>
       </div>
 
-      {activeTab === 'overview' && <OverviewTab project={project} />}
-      {activeTab === 'budget' && <BudgetForm projectId={project.id} initialBudget={budget} />}
-      {activeTab === 'expenses' && <ExpensesList projectId={project.id} />}
-      {activeTab === 'payments' && <PaymentsList projectId={project.id} />}
+      <div key={activeTab} className="animate-enter">
+        {activeTab === 'overview' && (
+          <OverviewTab
+            project={project}
+            profitability={profitability}
+            actualTotal={actualTotal}
+            totalReceived={totalReceived}
+          />
+        )}
+        {activeTab === 'budget' && <BudgetForm projectId={project.id} initialBudget={budget} />}
+        {activeTab === 'expenses' && <ExpensesList projectId={project.id} />}
+        {activeTab === 'payments' && <PaymentsList projectId={project.id} />}
+      </div>
     </div>
   );
 }
 
-function MetricCard({
-  label,
-  value,
-  variant = 'neutral',
+function OverviewTab({
+  project,
+  profitability,
+  actualTotal,
+  totalReceived,
 }: {
-  label: string;
-  value: string;
-  variant?: 'primary' | 'positive' | 'negative' | 'warning' | 'neutral';
+  project: Project;
+  profitability: Profitability;
+  actualTotal: number;
+  totalReceived: number;
 }) {
-  const variantClasses = {
-    primary: 'text-gray-900',
-    positive: 'text-green-600',
-    negative: 'text-red-600',
-    warning: 'text-yellow-600',
-    neutral: 'text-gray-900',
-  };
+  const contractAmount = Number(project.contract_amount);
+  const budgetUsedPercent =
+    profitability.estimated_total_cost > 0
+      ? (actualTotal / profitability.estimated_total_cost) * 100
+      : 0;
+  const paidPercent = contractAmount > 0 ? (totalReceived / contractAmount) * 100 : 0;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
-      <p className="text-sm text-gray-600 mb-1">{label}</p>
-      <p className={`text-xl font-semibold ${variantClasses[variant]}`}>{value}</p>
-    </div>
-  );
-}
-
-function OverviewTab({ project }: { project: Project }) {
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-6">
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Job progress</h3>
+        <ProgressBar
+          label={`Budget used · ${formatCurrency(actualTotal)} of ${formatCurrency(profitability.estimated_total_cost)}`}
+          percent={budgetUsedPercent}
+          tone={budgetUsedPercent > 100 ? 'negative' : budgetUsedPercent > 85 ? 'warning' : 'positive'}
+        />
+        <ProgressBar
+          label={`Paid by client · ${formatCurrency(totalReceived)} of ${formatCurrency(contractAmount)}`}
+          percent={paidPercent}
+          tone={paidPercent >= 100 ? 'positive' : 'default'}
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-6">
         <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Project Details</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-2">Project details</h3>
           <dl className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-gray-600">Name</dt>
-              <dd className="font-medium text-gray-900">{project.name}</dd>
+            <div className="flex justify-between gap-4">
+              <dt className="text-gray-600 shrink-0">Name</dt>
+              <dd className="font-medium text-gray-900 text-right break-words">{project.name}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-gray-600">Client</dt>
-              <dd className="font-medium text-gray-900">{project.client_name}</dd>
+            <div className="flex justify-between gap-4">
+              <dt className="text-gray-600 shrink-0">Client</dt>
+              <dd className="font-medium text-gray-900 text-right break-words">{project.client_name}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-gray-600">Status</dt>
+            <div className="flex justify-between gap-4">
+              <dt className="text-gray-600 shrink-0">Status</dt>
               <dd className="font-medium text-gray-900">{project.status}</dd>
             </div>
           </dl>
         </div>
         <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Dates</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-2">Schedule</h3>
           <dl className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-gray-600">Start Date</dt>
-              <dd className="font-medium text-gray-900">{project.start_date ? formatDate(project.start_date) : '—'}</dd>
+            <div className="flex justify-between gap-4">
+              <dt className="text-gray-600 shrink-0">Start date</dt>
+              <dd className="font-medium text-gray-900 text-right">{project.start_date ? formatDate(project.start_date) : '—'}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-gray-600">End Date</dt>
-              <dd className="font-medium text-gray-900">{project.end_date ? formatDate(project.end_date) : '—'}</dd>
+            <div className="flex justify-between gap-4">
+              <dt className="text-gray-600 shrink-0">End date</dt>
+              <dd className="font-medium text-gray-900 text-right">{project.end_date ? formatDate(project.end_date) : '—'}</dd>
             </div>
           </dl>
         </div>

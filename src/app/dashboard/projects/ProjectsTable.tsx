@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { StatusBadge, MarginText, EmptyState } from '@/components/ui';
 
 interface Project {
   id: string;
@@ -20,60 +21,47 @@ interface ProjectsTableProps {
   projects: Project[];
 }
 
-const statusColors: Record<string, string> = {
-  Planning: 'bg-yellow-100 text-yellow-800',
-  Active: 'bg-blue-100 text-blue-800',
-  Completed: 'bg-green-100 text-green-800',
-  Cancelled: 'bg-gray-100 text-gray-800',
-};
-
 export function ProjectsTable({ projects }: ProjectsTableProps) {
   if (projects.length === 0) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No projects</h3>
-        <p className="mt-1 text-sm text-gray-500">Get started by creating a new project.</p>
-        <Link
-          href="/dashboard/projects/new"
-          className="mt-4 inline-block text-blue-600 hover:text-blue-500 font-medium"
-        >
-          Create your first project
-        </Link>
-      </div>
+      <EmptyState
+        icon="projects"
+        title="No projects"
+        hint="Get started by creating a new project."
+        actionHref="/dashboard/projects/new"
+        actionLabel="Create your first project"
+      />
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[860px]">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Project
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Client
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Contract
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Est. Cost
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Est. Margin
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Status
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Dates
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Actions
               </th>
             </tr>
@@ -95,7 +83,7 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
 
               return (
                 <tr key={project.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 min-w-[160px]">
                     <Link
                       href={`/dashboard/projects/${project.id}`}
                       className="font-medium text-gray-900 hover:text-blue-600"
@@ -103,51 +91,37 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
                       {project.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{project.client_name}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{project.client_name}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
                     {formatCurrency(Number(project.contract_amount))}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
                     {formatCurrency(estimatedTotal)}
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`font-medium ${
-                        estimatedMargin < 0
-                          ? 'text-red-600'
-                          : estimatedMargin < 10
-                          ? 'text-yellow-600'
-                          : 'text-green-600'
-                      }`}
-                    >
-                      {estimatedMargin.toFixed(1)}%
-                    </span>
+                    <MarginText value={estimatedMargin} />
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[project.status] || 'bg-gray-100 text-gray-800'}`}
-                    >
-                      {project.status}
-                    </span>
+                    <StatusBadge status={project.status} />
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                     {project.start_date && formatDate(project.start_date)}
                     {' '}
                     {project.start_date && project.end_date && '–'}
                     {' '}
                     {project.end_date && formatDate(project.end_date)}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-1">
                       <Link
                         href={`/dashboard/projects/${project.id}`}
-                        className="text-sm text-blue-600 hover:text-blue-500"
+                        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center px-2 text-sm font-medium text-blue-600 hover:text-blue-500"
                       >
                         View
                       </Link>
                       <Link
                         href={`/dashboard/projects/${project.id}/edit`}
-                        className="text-sm text-gray-600 hover:text-gray-900"
+                        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center px-2 text-sm font-medium text-gray-600 hover:text-gray-900"
                       >
                         Edit
                       </Link>

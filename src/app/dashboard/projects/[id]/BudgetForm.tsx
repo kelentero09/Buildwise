@@ -81,7 +81,7 @@ export function BudgetForm({ projectId, initialBudget }: BudgetFormProps) {
   const estimatedTotal = profitability.estimated_total_cost;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-6">
       {saved && (
         <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded">
           Budget saved successfully
@@ -125,7 +125,7 @@ export function BudgetForm({ projectId, initialBudget }: BudgetFormProps) {
           />
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4 pt-0">
+        <div className="bg-gray-50 rounded-lg p-4">
           <h4 className="text-sm font-medium text-gray-700 mb-3">Summary</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
@@ -139,7 +139,7 @@ export function BudgetForm({ projectId, initialBudget }: BudgetFormProps) {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 min-h-[48px] py-2.5 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Saving...' : 'Save Budget'}
           </button>
@@ -193,8 +193,9 @@ function BudgetInput({
         type="number"
         min="0"
         step="0.01"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value) || 0)}
+        placeholder="0.00"
+        value={value === 0 ? '' : value}
+        onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value) || 0)}
         className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
           error ? 'border-red-300' : 'border-gray-300'
         }`}

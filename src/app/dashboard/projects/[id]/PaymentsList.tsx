@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { EmptyState, Spinner } from '@/components/ui';
 
 interface Payment {
   id: string;
@@ -113,14 +114,14 @@ export function PaymentsList({ projectId }: PaymentsListProps) {
   const totalReceived = payments.reduce((sum, pay) => sum + Number(pay.amount), 0);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h3 className="text-lg font-medium text-gray-900">Payments</h3>
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h3 className="text-lg font-semibold text-gray-900">Payments</h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+          className="inline-flex min-h-[44px] items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700"
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add Payment
@@ -137,8 +138,9 @@ export function PaymentsList({ projectId }: PaymentsListProps) {
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) || 0 })}
+                placeholder="0.00"
+                value={formData.amount === 0 ? '' : formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value === '' ? 0 : Number(e.target.value) || 0 })}
                 className={`w-full px-3 py-2 border rounded-md ${
                   formErrors.amount ? 'border-red-300' : 'border-gray-300'
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
@@ -167,18 +169,18 @@ export function PaymentsList({ projectId }: PaymentsListProps) {
               />
             </div>
           </div>
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="min-h-[44px] px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
               {submitting ? 'Adding...' : 'Add Payment'}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50"
+              className="min-h-[44px] px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50"
             >
               Cancel
             </button>
@@ -194,37 +196,39 @@ export function PaymentsList({ projectId }: PaymentsListProps) {
       )}
 
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Loading payments...</div>
+        <Spinner label="Loading payments..." />
       ) : payments.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          No payments recorded yet. Click Add Payment to start tracking.
-        </div>
+        <EmptyState
+          icon="payments"
+          title="No payments yet"
+          hint="Record client collections here to track what has been paid and the remaining balance."
+        />
       ) : (
         <>
-          <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div className="flex justify-between items-center gap-2 pb-2 border-b border-gray-200">
             <span className="text-sm text-gray-600">{payments.length} payment{payments.length !== 1 ? 's' : ''}</span>
-            <span className="font-medium text-gray-900">Total Received: {formatCurrency(totalReceived)}</span>
+            <span className="font-semibold text-gray-900 whitespace-nowrap">Total Received: {formatCurrency(totalReceived)}</span>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table className="w-full min-w-[520px]">
               <thead>
                 <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <th className="pb-2">Date</th>
-                  <th className="pb-2">Amount</th>
-                  <th className="pb-2">Notes</th>
+                  <th className="pb-2 pr-4 whitespace-nowrap">Date</th>
+                  <th className="pb-2 pr-4 whitespace-nowrap">Amount</th>
+                  <th className="pb-2 pr-4">Notes</th>
                   <th className="pb-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {payments.map((payment) => (
                   <tr key={payment.id} className="hover:bg-gray-50">
-                    <td className="py-2 text-sm text-gray-600">{formatDate(payment.payment_date)}</td>
-                    <td className="py-2 text-sm font-medium text-gray-900">{formatCurrency(payment.amount)}</td>
-                    <td className="py-2 text-sm text-gray-600">{payment.notes || '&mdash;'}</td>
-                    <td className="py-2 text-right">
+                    <td className="py-2.5 pr-4 text-sm text-gray-600 whitespace-nowrap">{formatDate(payment.payment_date)}</td>
+                    <td className="py-2.5 pr-4 text-sm font-medium text-gray-900 whitespace-nowrap">{formatCurrency(payment.amount)}</td>
+                    <td className="py-2.5 pr-4 text-sm text-gray-600">{payment.notes || '—'}</td>
+                    <td className="py-2.5 text-right">
                       <button
                         onClick={() => handleDelete(payment.id)}
-                        className="text-sm text-red-600 hover:text-red-900"
+                        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center px-2 text-sm font-medium text-red-600 hover:text-red-900"
                       >
                         Delete
                       </button>

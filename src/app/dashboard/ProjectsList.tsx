@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { StatusBadge, MarginText, EmptyState } from '@/components/ui';
 
 interface Project {
   id: string;
@@ -21,52 +22,43 @@ interface ProjectsListProps {
   limit?: number;
 }
 
-const statusColors: Record<string, string> = {
-  Planning: 'bg-yellow-100 text-yellow-800',
-  Active: 'bg-blue-100 text-blue-800',
-  Completed: 'bg-green-100 text-green-800',
-  Cancelled: 'bg-gray-100 text-gray-800',
-};
-
 export function ProjectsList({ projects, limit }: ProjectsListProps) {
   const displayProjects = limit ? projects.slice(0, limit) : projects;
 
   if (displayProjects.length === 0) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-        <p className="text-gray-600">No projects yet</p>
-        <Link
-          href="/dashboard/projects/new"
-          className="mt-4 inline-block text-blue-600 hover:text-blue-500 font-medium"
-        >
-          Create your first project
-        </Link>
-      </div>
+      <EmptyState
+        icon="projects"
+        title="No projects yet"
+        hint="Add your first job to start tracking its budget, expenses, and payments."
+        actionHref="/dashboard/projects/new"
+        actionLabel="Create your first project"
+      />
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[680px]">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Project
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Client
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Contract
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Margin
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Status
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Dates
               </th>
             </tr>
@@ -96,7 +88,7 @@ export function ProjectsList({ projects, limit }: ProjectsListProps) {
                   key={project.id}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 min-w-[160px]">
                     <Link
                       href={`/dashboard/projects/${project.id}`}
                       className="font-medium text-gray-900 hover:text-blue-600"
@@ -104,31 +96,17 @@ export function ProjectsList({ projects, limit }: ProjectsListProps) {
                       {project.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{project.client_name}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{project.client_name}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
                     {formatCurrency(Number(project.contract_amount))}
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`font-medium ${
-                        margin < 0
-                          ? 'text-red-600'
-                          : margin < 10
-                          ? 'text-yellow-600'
-                          : 'text-green-600'
-                      }`}
-                    >
-                      {margin.toFixed(1)}%
-                    </span>
+                    <MarginText value={margin} />
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[project.status] || 'bg-gray-100 text-gray-800'}`}
-                    >
-                      {project.status}
-                    </span>
+                    <StatusBadge status={project.status} />
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                     {project.start_date && formatDate(project.start_date)}
                     {' '}
                     {project.start_date && project.end_date && '–'}

@@ -1,6 +1,7 @@
 'use client';
 
 import { formatCurrency } from '@/lib/utils';
+import { StatCard } from '@/components/ui';
 
 interface Project {
   contract_amount: number;
@@ -39,35 +40,32 @@ export function DashboardStats({ projects }: DashboardStatsProps) {
   const estimatedProfit = totalContractValue - totalEstimatedCost;
   const actualProfit = totalContractValue - totalActualExpenses;
 
-  const stats = [
-    { label: 'Active Projects', value: activeProjects.length.toString() },
-    { label: 'Total Contract Value', value: formatCurrency(totalContractValue) },
-    { label: 'Total Received', value: formatCurrency(totalReceived) },
-    { label: 'Total Actual Expenses', value: formatCurrency(totalActualExpenses) },
-    { label: 'Estimated Profit', value: formatCurrency(estimatedProfit), variant: estimatedProfit < 0 ? 'negative' : 'positive' },
-    { label: 'Actual Profit', value: formatCurrency(actualProfit), variant: actualProfit < 0 ? 'negative' : 'positive' },
+  const stats: {
+    label: string;
+    value: string;
+    icon: string;
+    tone: 'default' | 'positive' | 'negative' | 'warning';
+    valueTone?: 'default' | 'positive' | 'negative' | 'warning';
+  }[] = [
+    { label: 'Active Projects', value: activeProjects.length.toString(), icon: 'projects', tone: 'default' },
+    { label: 'Contract Value', value: formatCurrency(totalContractValue), icon: 'contract', tone: 'default' },
+    { label: 'Received', value: formatCurrency(totalReceived), icon: 'received', tone: 'positive' },
+    { label: 'Actual Expenses', value: formatCurrency(totalActualExpenses), icon: 'expenses', tone: 'warning' },
+    { label: 'Estimated Profit', value: formatCurrency(estimatedProfit), icon: 'profit', tone: estimatedProfit < 0 ? 'negative' : 'positive', valueTone: estimatedProfit < 0 ? 'negative' : 'positive' },
+    { label: 'Actual Profit', value: formatCurrency(actualProfit), icon: 'profit', tone: actualProfit < 0 ? 'negative' : 'positive', valueTone: actualProfit < 0 ? 'negative' : 'positive' },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-      {stats.map((stat, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-lg border border-gray-200 p-4"
-        >
-          <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-          <p
-            className={`text-xl font-semibold ${
-              stat.variant === 'negative'
-                ? 'text-red-600'
-                : stat.variant === 'positive'
-                ? 'text-green-600'
-                : 'text-gray-900'
-            }`}
-          >
-            {stat.value}
-          </p>
-        </div>
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      {stats.map((stat) => (
+        <StatCard
+          key={stat.label}
+          label={stat.label}
+          value={stat.value}
+          icon={stat.icon}
+          tone={stat.tone}
+          valueTone={stat.valueTone ?? 'default'}
+        />
       ))}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
+import { StatusBadge, MarginText, StatIcon } from '@/components/ui';
 
 interface Project {
   id: string;
@@ -19,13 +20,6 @@ interface Project {
 interface ProjectsAttentionProps {
   projects: Project[];
 }
-
-const statusColors: Record<string, string> = {
-  Planning: 'bg-yellow-100 text-yellow-800',
-  Active: 'bg-blue-100 text-blue-800',
-  Completed: 'bg-green-100 text-green-800',
-  Cancelled: 'bg-gray-100 text-gray-800',
-};
 
 export function ProjectsAttention({ projects }: ProjectsAttentionProps) {
   const attentionProjects = projects
@@ -57,12 +51,10 @@ export function ProjectsAttention({ projects }: ProjectsAttentionProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="p-4 border-b border-gray-200 bg-red-50">
-        <h3 className="text-lg font-medium text-red-800 flex items-center gap-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
+    <div className="bg-white rounded-xl border border-red-200 shadow-sm overflow-hidden">
+      <div className="p-4 border-b border-red-100 bg-red-50">
+        <h3 className="text-base font-semibold text-red-800 flex items-center gap-2">
+          <StatIcon name="warning" className="h-5 w-5 shrink-0" />
           Projects Needing Attention
         </h3>
         <p className="text-sm text-red-600 mt-1">
@@ -70,22 +62,22 @@ export function ProjectsAttention({ projects }: ProjectsAttentionProps) {
         </p>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[620px]">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Project
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Client
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Status
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Margin
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Actual vs Est. Cost
               </th>
             </tr>
@@ -93,7 +85,7 @@ export function ProjectsAttention({ projects }: ProjectsAttentionProps) {
           <tbody className="divide-y divide-gray-200">
             {attentionProjects.slice(0, 5).map(({ project, margin, actualTotal, estimatedTotal }) => (
               <tr key={project.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 min-w-[160px]">
                   <Link
                     href={`/dashboard/projects/${project.id}`}
                     className="font-medium text-gray-900 hover:text-blue-600"
@@ -101,28 +93,14 @@ export function ProjectsAttention({ projects }: ProjectsAttentionProps) {
                     {project.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{project.client_name}</td>
+                <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{project.client_name}</td>
                 <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[project.status] || 'bg-gray-100 text-gray-800'}`}
-                  >
-                    {project.status}
-                  </span>
+                  <StatusBadge status={project.status} />
                 </td>
                 <td className="px-4 py-3">
-                  <span
-                    className={`font-medium ${
-                      margin < 0
-                        ? 'text-red-600'
-                        : margin < 10
-                        ? 'text-yellow-600'
-                        : 'text-green-600'
-                    }`}
-                  >
-                    {margin.toFixed(1)}%
-                  </span>
+                  <MarginText value={margin} />
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">
+                <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                   {actualTotal > 0
                     ? `${formatCurrency(actualTotal)} / ${formatCurrency(estimatedTotal)}`
                     : `Est. ${formatCurrency(estimatedTotal)}`}

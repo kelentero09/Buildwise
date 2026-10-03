@@ -2,8 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { EmptyState, Spinner } from '@/components/ui';
 
 const categories = ['Materials', 'Labor', 'Equipment', 'Other'] as const;
+
+const categoryStyles: Record<string, string> = {
+  Materials: 'bg-amber-100 text-amber-800',
+  Labor: 'bg-blue-100 text-blue-800',
+  Equipment: 'bg-purple-100 text-purple-800',
+  Other: 'bg-gray-100 text-gray-700',
+};
 
 interface Expense {
   id: string;
@@ -119,14 +127,14 @@ export function ExpensesList({ projectId }: ExpensesListProps) {
   const totalExpenses = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h3 className="text-lg font-medium text-gray-900">Expenses</h3>
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h3 className="text-lg font-semibold text-gray-900">Expenses</h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+          className="inline-flex min-h-[44px] items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700"
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add Expense
@@ -157,8 +165,9 @@ export function ExpensesList({ projectId }: ExpensesListProps) {
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) || 0 })}
+                placeholder="0.00"
+                value={formData.amount === 0 ? '' : formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value === '' ? 0 : Number(e.target.value) || 0 })}
                 className={`w-full px-3 py-2 border rounded-md ${
                   formErrors.amount ? 'border-red-300' : 'border-gray-300'
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
@@ -187,18 +196,18 @@ export function ExpensesList({ projectId }: ExpensesListProps) {
               />
             </div>
           </div>
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="min-h-[44px] px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
               {submitting ? 'Adding...' : 'Add Expense'}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50"
+              className="min-h-[44px] px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50"
             >
               Cancel
             </button>
@@ -214,43 +223,45 @@ export function ExpensesList({ projectId }: ExpensesListProps) {
       )}
 
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Loading expenses...</div>
+        <Spinner label="Loading expenses..." />
       ) : expenses.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          No expenses recorded yet. Click Add Expense to start tracking.
-        </div>
+        <EmptyState
+          icon="expenses"
+          title="No expenses yet"
+          hint="Log materials, labor, and other site costs to compare against the budget."
+        />
       ) : (
         <>
-          <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div className="flex justify-between items-center gap-2 pb-2 border-b border-gray-200">
             <span className="text-sm text-gray-600">{expenses.length} expense{expenses.length !== 1 ? 's' : ''}</span>
-            <span className="font-medium text-gray-900">Total: {formatCurrency(totalExpenses)}</span>
+            <span className="font-semibold text-gray-900 whitespace-nowrap">Total: {formatCurrency(totalExpenses)}</span>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table className="w-full min-w-[560px]">
               <thead>
                 <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <th className="pb-2">Date</th>
-                  <th className="pb-2">Category</th>
-                  <th className="pb-2">Description</th>
-                  <th className="pb-2 text-right">Amount</th>
+                  <th className="pb-2 pr-4 whitespace-nowrap">Date</th>
+                  <th className="pb-2 pr-4 whitespace-nowrap">Category</th>
+                  <th className="pb-2 pr-4">Description</th>
+                  <th className="pb-2 pr-4 text-right whitespace-nowrap">Amount</th>
                   <th className="pb-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {expenses.map((expense) => (
                   <tr key={expense.id} className="hover:bg-gray-50">
-                    <td className="py-2 text-sm text-gray-600">{formatDate(expense.expense_date)}</td>
-                    <td className="py-2 text-sm">
-                      <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+                    <td className="py-2.5 pr-4 text-sm text-gray-600 whitespace-nowrap">{formatDate(expense.expense_date)}</td>
+                    <td className="py-2.5 pr-4 text-sm">
+                      <span className={`inline-flex whitespace-nowrap px-2 py-0.5 text-xs font-medium rounded-full ${categoryStyles[expense.category] || 'bg-gray-100 text-gray-700'}`}>
                         {expense.category}
                       </span>
                     </td>
-                    <td className="py-2 text-sm text-gray-900">{expense.description || '&mdash;'}</td>
-                    <td className="py-2 text-sm font-medium text-gray-900 text-right">{formatCurrency(expense.amount)}</td>
-                    <td className="py-2 text-right">
+                    <td className="py-2.5 pr-4 text-sm text-gray-900">{expense.description || '—'}</td>
+                    <td className="py-2.5 pr-4 text-sm font-medium text-gray-900 text-right whitespace-nowrap">{formatCurrency(expense.amount)}</td>
+                    <td className="py-2.5 text-right">
                       <button
                         onClick={() => handleDelete(expense.id)}
-                        className="text-sm text-red-600 hover:text-red-900"
+                        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center px-2 text-sm font-medium text-red-600 hover:text-red-900"
                       >
                         Delete
                       </button>

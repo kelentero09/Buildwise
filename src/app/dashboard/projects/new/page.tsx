@@ -97,7 +97,7 @@ export default function NewProjectPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg border border-gray-200 p-6">
+      <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
             Project Name <span className="text-red-500">*</span>
@@ -149,8 +149,9 @@ export default function NewProjectPage() {
             required
             min="0"
             step="0.01"
-            value={formData.contract_amount}
-            onChange={(e) => handleChange('contract_amount', Number(e.target.value) || 0)}
+            placeholder="0.00"
+            value={formData.contract_amount === 0 ? '' : formData.contract_amount}
+            onChange={(e) => handleChange('contract_amount', e.target.value === '' ? 0 : Number(e.target.value) || 0)}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
               errors.contract_amount ? 'border-red-300' : 'border-gray-300'
             }`}
@@ -223,14 +224,14 @@ export default function NewProjectPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 min-h-[48px] py-2.5 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating...' : 'Create Project'}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex-1 py-2 px-4 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50"
+            className="flex-1 min-h-[48px] py-2.5 px-4 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50"
             disabled={loading}
           >
             Cancel
